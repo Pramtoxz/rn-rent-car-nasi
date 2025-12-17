@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/MaisonNeue-Bold.ttf",
+      "sha1": "4def3d80b6b3b89f7176710862ae58c4c2ab55e4"
+    },
+    {
+      "path": "src/assets/fonts/MaisonNeue-Book.ttf",
+      "sha1": "43d1c8c3770b218352e29a04052419098447995a"
+    }
+  ]
+}
