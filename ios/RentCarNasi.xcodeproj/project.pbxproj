@@ -13,6 +13,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		37DE23FCA2A14BA58FF5D757 /* MaisonNeue-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47B74C01D3AF4DED92C75EE8 /* MaisonNeue-Bold.ttf */; };
 		B8FE6BE060D54857A0FE985D /* MaisonNeue-Book.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8232389126F4C4A9D22BACF /* MaisonNeue-Book.ttf */; };
+		609F70736D7348B380493BE2 /* MaisonNeue-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF2FCBD71402428C81349EC1 /* MaisonNeue-Light.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		47B74C01D3AF4DED92C75EE8 /* MaisonNeue-Bold.ttf */ = {isa = PBXFileReference; name = "MaisonNeue-Bold.ttf"; path = "../src/assets/fonts/MaisonNeue-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		E8232389126F4C4A9D22BACF /* MaisonNeue-Book.ttf */ = {isa = PBXFileReference; name = "MaisonNeue-Book.ttf"; path = "../src/assets/fonts/MaisonNeue-Book.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		DF2FCBD71402428C81349EC1 /* MaisonNeue-Light.ttf */ = {isa = PBXFileReference; name = "MaisonNeue-Light.ttf"; path = "../src/assets/fonts/MaisonNeue-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 			children = (
 				47B74C01D3AF4DED92C75EE8 /* MaisonNeue-Bold.ttf */,
 				E8232389126F4C4A9D22BACF /* MaisonNeue-Book.ttf */,
+				DF2FCBD71402428C81349EC1 /* MaisonNeue-Light.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -176,6 +179,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				37DE23FCA2A14BA58FF5D757 /* MaisonNeue-Bold.ttf in Resources */,
 				B8FE6BE060D54857A0FE985D /* MaisonNeue-Book.ttf in Resources */,
+				609F70736D7348B380493BE2 /* MaisonNeue-Light.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

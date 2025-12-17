@@ -8,6 +8,10 @@
     {
       "path": "src/assets/fonts/MaisonNeue-Book.ttf",
       "sha1": "43d1c8c3770b218352e29a04052419098447995a"
+    },
+    {
+      "path": "src/assets/fonts/MaisonNeue-Light.ttf",
+      "sha1": "8938ad19ad3f782b6b97943a7a9ec9cc256301da"
     }
   ]
 }
