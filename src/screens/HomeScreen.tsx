@@ -1,35 +1,56 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
+import { mobilService, Mobil } from '../services/mobilService';
 
 const HomeScreen = ({ navigation }: any) => {
-  const cars = [
-    { id: 1, name: 'Lamborghini Urus', price: 'Rp.500K', image: require('../assets/images/car.png') },
-    { id: 2, name: 'Becak Om Towel', price: 'Rp.350K', image: require('../assets/images/car.png') },
-  ];
+  const [rekomendasi, setRekomendasi] = useState<Mobil[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    loadRekomendasi();
+  }, []);
+
+  const loadRekomendasi = async () => {
+    try {
+      const response = await mobilService.getRekomendasiMobil();
+      setRekomendasi(response.data);
+    } catch (error) {
+      console.log('Error loading rekomendasi:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const MENU_ITEMS = [
   { 
     id: 1, 
     name: 'Mobil', 
-    image: require('../assets/images/menu-car.png') 
+    image: require('../assets/images/icon/car.png'),
+    onPress: () => navigation.navigate('MobilList')
   },
   { 
     id: 2, 
     name: 'Riwayat', 
-    image: require('../assets/images/menu-car.png') 
+    image: require('../assets/images/icon/history.png'),
+    onPress: () => {}
   },
   { 
     id: 3, 
-    name: 'Tagihan', 
-    image: require('../assets/images/menu-car.png')  },
+    name: 'Profile', 
+    image: require('../assets/images/icon/profile.png'),
+    onPress: () => navigation.navigate('Profile')
+  },
   { 
     id: 4, 
     name: 'About',
-    image: require('../assets/images/menu-car.png')  },
+    image: require('../assets/images/icon/about.png'),
+    onPress: () => {}
+  },
 ];
 
   return (
@@ -44,7 +65,11 @@ const HomeScreen = ({ navigation }: any) => {
                 <Text style={styles.locationText}>Padang, Sumatera Barat</Text>
               </View>
             </View>
-            <View style={styles.avatar} />
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+              <View style={styles.avatar}>
+                <Icon name="user" size={20} color={colors.white} />
+              </View>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.searchSection}>
@@ -56,6 +81,8 @@ const HomeScreen = ({ navigation }: any) => {
                   placeholder="Cari Mobil Impian Anda Dan Keluarga"
                   placeholderTextColor={colors.secondary}
                   style={styles.input}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
                 />
               </View>
               <TouchableOpacity style={styles.filterButton}>
@@ -72,7 +99,7 @@ const HomeScreen = ({ navigation }: any) => {
           </View>
           <View style={styles.menusContainer}>
           {MENU_ITEMS.map(item => (
-              <TouchableOpacity key={item.id} style={styles.menuCard}>
+              <TouchableOpacity key={item.id} style={styles.menuCard} onPress={item.onPress}>
                 <Image 
                   source={item.image}
                   style={styles.menuImage}
@@ -84,28 +111,31 @@ const HomeScreen = ({ navigation }: any) => {
           </View>
         </View>
 
-        {/* Rekomendasi */}
         <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Rekomendasi</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('MobilList')}>
                 <Text style={styles.moreText}>More</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {cars.map(car => (
-                <TouchableOpacity
-                  key={car.id}
-                  style={styles.carCard}
-                  onPress={() => navigation.navigate('CarDetails')}>
-                  <View style={styles.carImageContainer}>
-                    <Image source={car.image} style={styles.carImage} resizeMode="contain" />
-                  </View>
-                  <Text style={styles.carName}>{car.name}</Text>
-                  <Text style={styles.carPrice}>{car.price}/Day</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            {loading ? (
+              <ActivityIndicator size="large" color={colors.primary} style={{ marginLeft: 20 }} />
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {rekomendasi.map(car => (
+                  <TouchableOpacity
+                    key={car.id}
+                    style={styles.carCard}
+                    onPress={() => navigation.navigate('CarDetails', { carId: car.id })}>
+                    <View style={styles.carImageContainer}>
+                      <Image source={{ uri: car.foto_mobil }} style={styles.carImage} resizeMode="contain" />
+                    </View>
+                    <Text style={styles.carName}>{car.nama_mobil}</Text>
+                    <Text style={styles.carPrice}>{car.harga_formatted}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -155,7 +185,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchSection: {
     paddingHorizontal: 20,

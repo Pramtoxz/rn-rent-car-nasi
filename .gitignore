@@ -21,8 +21,10 @@ DerivedData
 *.ipa
 *.xcuserstate
 **/.xcode.env.local
-/note.md
-/SETUP.md
+/API_DOCUMENTATION.md
+/IMPLEMENTATION_NOTES.md
+/QUICK_START.md
+
 # Android/IntelliJ
 #
 build/

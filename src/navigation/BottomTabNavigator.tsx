@@ -43,10 +43,10 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="MobilList"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color }) => <Icon name="user" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Icon name="list" size={24} color={color} />,
         }}
       />
     </Tab.Navigator>

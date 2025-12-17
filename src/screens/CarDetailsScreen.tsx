@@ -1,14 +1,69 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
+import { mobilService, Mobil } from '../services/mobilService';
+import { useAuth } from '../context/AuthContext';
 
-const CarDetailsScreen = ({ navigation }: any) => {
+const CarDetailsScreen = ({ route, navigation }: any) => {
+  const { carId } = route.params;
+  const [mobil, setMobil] = useState<Mobil | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    loadMobilDetail();
+  }, []);
+
+  const loadMobilDetail = async () => {
+    try {
+      const data = await mobilService.getMobilDetail(carId);
+      setMobil(data);
+    } catch (error) {
+      Alert.alert('Error', 'Gagal memuat detail mobil');
+      navigation.goBack();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBookCar = () => {
+    if (user?.status_verifikasi !== 'verified') {
+      let message = 'Akun Anda belum diverifikasi';
+      if (user?.status_verifikasi === 'pending') {
+        message = 'Akun Anda masih menunggu verifikasi admin';
+      } else if (user?.status_verifikasi === 'rejected') {
+        message = 'Akun Anda ditolak oleh admin';
+      }
+      Alert.alert('Tidak Dapat Booking', message);
+      return;
+    }
+
+    if (mobil?.status !== 'tersedia') {
+      Alert.alert('Tidak Tersedia', 'Mobil ini sedang tidak tersedia');
+      return;
+    }
+
+    navigation.navigate('MapTracking', { mobil });
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
+
+  if (!mobil) {
+    return null;
+  }
+
+  const isBookingDisabled = user?.status_verifikasi !== 'verified' || mobil.status !== 'tersedia';
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-left" size={24} color={colors.white} />
@@ -17,56 +72,100 @@ const CarDetailsScreen = ({ navigation }: any) => {
         <View style={{ width: 40 }} />
       </View>
 
-      <View style={styles.imageContainer}>
-        <Image
-          source={require('../assets/images/car.png')}
-          style={styles.carImage}
-          resizeMode="contain"
-        />
-      </View>
-
-      <View style={styles.infoCard}>
-        <View style={styles.badgeContainer}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>SUV Car</Text>
-          </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Off Road</Text>
-          </View>
-          <View style={styles.logoContainer}>
-            <Icon name="shield" size={24} color={colors.primary} />
-          </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: mobil.foto_mobil }}
+            style={styles.carImage}
+            resizeMode="contain"
+          />
         </View>
 
-        <Text style={styles.carName}>Lamborghini Urus (2022)</Text>
-        <Text style={styles.carPrice}>Rp.500K/Day</Text>
+        <View style={styles.infoCard}>
+          <View style={styles.badgeContainer}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{mobil.jenis_transmisi}</Text>
+            </View>
+            <View style={[styles.badge, mobil.status === 'tersedia' ? styles.badgeAvailable : styles.badgeUnavailable]}>
+              <Text style={styles.badgeText}>{mobil.status}</Text>
+            </View>
+            <View style={styles.logoContainer}>
+              <Icon name="shield" size={24} color={colors.primary} />
+            </View>
+          </View>
 
-        {/* Specs Grid */}
-        <View style={styles.specsContainer}>
-          <View style={styles.specCard}>
-            <Icon name="users" size={32} color={colors.secondary} />
-            <Text style={styles.specLabel}>Capacity</Text>
-            <Text style={styles.specValue}>4 Seats</Text>
+          <Text style={styles.carName}>{mobil.nama_mobil} ({mobil.tahun})</Text>
+          <Text style={styles.carPrice}>{mobil.harga_formatted}</Text>
+
+          <View style={styles.detailsContainer}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Merk</Text>
+              <Text style={styles.detailValue}>{mobil.merk}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Plat Nomor</Text>
+              <Text style={styles.detailValue}>{mobil.plat_nomor}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Warna</Text>
+              <Text style={styles.detailValue}>{mobil.warna}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Transmisi</Text>
+              <Text style={styles.detailValue}>{mobil.jenis_transmisi}</Text>
+            </View>
           </View>
-          <View style={styles.specCard}>
-            <Icon name="zap" size={32} color={colors.secondary} />
-            <Text style={styles.specLabel}>Max Speed</Text>
-            <Text style={styles.specValue}>680 KM/H</Text>
+
+          <Text style={styles.descriptionTitle}>Deskripsi</Text>
+          <Text style={styles.descriptionText}>{mobil.deskripsi}</Text>
+
+          <View style={styles.specsContainer}>
+            <View style={styles.specCard}>
+              <Icon name="users" size={32} color={colors.secondary} />
+              <Text style={styles.specLabel}>Kapasitas</Text>
+              <Text style={styles.specValue}>{mobil.kapasitas_penumpang} Seats</Text>
+            </View>
+            <View style={styles.specCard}>
+              <Icon name="calendar" size={32} color={colors.secondary} />
+              <Text style={styles.specLabel}>Tahun</Text>
+              <Text style={styles.specValue}>{mobil.tahun}</Text>
+            </View>
+            <View style={styles.specCard}>
+              <Icon name="settings" size={32} color={colors.secondary} />
+              <Text style={styles.specLabel}>Transmisi</Text>
+              <Text style={styles.specValue}>{mobil.jenis_transmisi}</Text>
+            </View>
           </View>
-          <View style={styles.specCard}>
-            <Icon name="cpu" size={32} color={colors.secondary} />
-            <Text style={styles.specLabel}>Engine Power</Text>
-            <Text style={styles.specValue}>500 HP</Text>
-          </View>
+
+          {user?.status_verifikasi !== 'verified' && (
+            <View style={styles.warningContainer}>
+              <Icon name="alert-circle" size={20} color={colors.primary} />
+              <Text style={styles.warningText}>
+                {user?.status_verifikasi === 'pending' 
+                  ? 'Akun Anda masih menunggu verifikasi admin'
+                  : user?.status_verifikasi === 'rejected'
+                  ? 'Akun Anda ditolak oleh admin'
+                  : 'Akun Anda belum diverifikasi'}
+              </Text>
+            </View>
+          )}
         </View>
-      </View>
+      </ScrollView>
 
-      {/* Bottom Button */}
       <View style={styles.bottomContainer}>
         <TouchableOpacity
-          style={styles.bookButton}
-          onPress={() => navigation.navigate('MapTracking')}>
-          <Text style={styles.bookButtonText}>Book Car</Text>
+          style={[styles.bookButton, isBookingDisabled && styles.bookButtonDisabled]}
+          onPress={handleBookCar}
+          disabled={isBookingDisabled}>
+          <Icon 
+            name={isBookingDisabled ? 'lock' : 'check-circle'} 
+            size={20} 
+            color={isBookingDisabled ? colors.secondary : colors.background} 
+            style={{ marginRight: 8 }}
+          />
+          <Text style={[styles.bookButtonText, isBookingDisabled && styles.bookButtonTextDisabled]}>
+            {isBookingDisabled ? 'Tidak Dapat Booking' : 'Book Car'}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -129,6 +228,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.primary,
   },
+  badgeAvailable: {
+    borderColor: '#4CAF50',
+  },
+  badgeUnavailable: {
+    borderColor: colors.secondary,
+  },
   logoContainer: {
     marginLeft: 'auto',
   },
@@ -175,13 +280,73 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 12,
     height: 56,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  bookButtonDisabled: {
+    backgroundColor: colors.cardBackground,
+    borderWidth: 1,
+    borderColor: colors.secondary,
   },
   bookButtonText: {
     fontFamily: fonts.bold,
     fontSize: 16,
     color: colors.background,
+  },
+  bookButtonTextDisabled: {
+    color: colors.secondary,
+  },
+  detailsContainer: {
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.cardBackground,
+  },
+  detailLabel: {
+    fontFamily: fonts.book,
+    fontSize: 14,
+    color: colors.secondary,
+  },
+  detailValue: {
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    color: colors.white,
+  },
+  descriptionTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 16,
+    color: colors.white,
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontFamily: fonts.book,
+    fontSize: 14,
+    color: colors.secondary,
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  warningContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 16,
+    gap: 12,
+  },
+  warningText: {
+    flex: 1,
+    fontFamily: fonts.book,
+    fontSize: 14,
+    color: colors.primary,
   },
 });
 
