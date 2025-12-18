@@ -63,15 +63,12 @@ const BookingScreen = ({ navigation, route }: any) => {
         catatan_customer: catatan,
       });
 
-      showAlert.success(
-        `Kode Booking: ${response.data.kode_booking}\n\nSilakan upload bukti pembayaran`,
-        'Booking Berhasil'
-      );
+      showAlert.success('Booking berhasil! Silakan upload bukti pembayaran', 'Booking Berhasil');
       
-      // Navigate back after 2 seconds
+      // Navigate to BookingDetail to upload payment proof
       setTimeout(() => {
-        navigation.goBack();
-      }, 2000);
+        navigation.replace('BookingDetail', { bookingId: response.data.id });
+      }, 1500);
     } catch (error: any) {
       showAlert.error(error.response?.data?.message || 'Gagal membuat booking');
     } finally {
