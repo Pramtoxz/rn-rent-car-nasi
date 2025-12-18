@@ -9,15 +9,15 @@ import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { showAlert } from '../utils/alert';
 
-const CompleteProfileScreen = ({ navigation }: any) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [nik, setNik] = useState('');
-  const [alamat, setAlamat] = useState('');
+const EditProfileScreen = ({ navigation }: any) => {
+  const { user, refreshUser } = useAuth();
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [nik, setNik] = useState(user?.nik || '');
+  const [alamat, setAlamat] = useState(user?.alamat || '');
   const [fotoKTP, setFotoKTP] = useState<any>(null);
   const [fotoSelfie, setFotoSelfie] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const { refreshUser } = useAuth();
 
   const pickImage = async (type: 'ktp' | 'selfie') => {
     const result = await launchImageLibrary({
@@ -35,8 +35,14 @@ const CompleteProfileScreen = ({ navigation }: any) => {
   };
 
   const handleSubmit = async () => {
-    if (!name || !email || !nik || !alamat || !fotoKTP || !fotoSelfie) {
+    if (!name || !email || !nik || !alamat) {
       showAlert.error('Semua field harus diisi');
+      return;
+    }
+
+    // Jika status rejected, wajib upload ulang foto
+    if (user?.status_verifikasi === 'rejected' && (!fotoKTP || !fotoSelfie)) {
+      showAlert.error('Untuk akun yang ditolak, wajib upload ulang foto KTP dan Selfie');
       return;
     }
 
@@ -47,26 +53,34 @@ const CompleteProfileScreen = ({ navigation }: any) => {
         email,
         nik,
         alamat,
-        foto_ktp: {
+      };
+      
+      // Upload foto baru jika ada
+      if (fotoKTP) {
+        data.foto_ktp = {
           uri: fotoKTP.uri,
           type: fotoKTP.type || 'image/jpeg',
           name: fotoKTP.fileName || `ktp_${Date.now()}.jpg`,
-        },
-        foto_selfie: {
+        };
+      }
+      
+      if (fotoSelfie) {
+        data.foto_selfie = {
           uri: fotoSelfie.uri,
           type: fotoSelfie.type || 'image/jpeg',
           name: fotoSelfie.fileName || `selfie_${Date.now()}.jpg`,
-        },
-      };
+        };
+      }
 
-      await authService.completeProfile(data);
+      await authService.updateProfile(data);
       await refreshUser();
-      showAlert.success('Profil berhasil dilengkapi, menunggu verifikasi admin');
+      showAlert.success('Profil berhasil diperbarui, menunggu verifikasi admin');
+      navigation.goBack();
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
                           error.response?.data?.error ||
                           error.message || 
-                          'Gagal melengkapi profil';
+                          'Gagal memperbarui profil';
       showAlert.error(errorMessage);
     } finally {
       setLoading(false);
@@ -75,9 +89,26 @@ const CompleteProfileScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color={colors.white} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Edit Profil</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Lengkapi Profil</Text>
-        <Text style={styles.subtitle}>Isi data diri untuk melanjutkan</Text>
+        {user?.status_verifikasi === 'rejected' && (
+          <View style={styles.rejectedBanner}>
+            <Icon name="alert-triangle" size={24} color="#F44336" />
+            <View style={styles.bannerContent}>
+              <Text style={styles.bannerTitle}>Akun Ditolak</Text>
+              <Text style={styles.bannerText}>
+                Perbaiki data Anda dan upload ulang foto KTP & Selfie untuk verifikasi ulang
+              </Text>
+            </View>
+          </View>
+        )}
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nama Lengkap</Text>
@@ -129,28 +160,36 @@ const CompleteProfileScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Foto KTP</Text>
+          <Text style={styles.label}>
+            Foto KTP {user?.status_verifikasi === 'rejected' && <Text style={styles.required}>*</Text>}
+          </Text>
           <TouchableOpacity style={styles.imageButton} onPress={() => pickImage('ktp')}>
             {fotoKTP ? (
               <Image source={{ uri: fotoKTP.uri }} style={styles.imagePreview} />
             ) : (
               <>
                 <Icon name="camera" size={24} color={colors.secondary} />
-                <Text style={styles.imageButtonText}>Pilih Foto KTP</Text>
+                <Text style={styles.imageButtonText}>
+                  {user?.status_verifikasi === 'rejected' ? 'Upload Ulang Foto KTP' : 'Ganti Foto KTP (Opsional)'}
+                </Text>
               </>
             )}
           </TouchableOpacity>
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Foto Selfie dengan KTP</Text>
+          <Text style={styles.label}>
+            Foto Selfie dengan KTP {user?.status_verifikasi === 'rejected' && <Text style={styles.required}>*</Text>}
+          </Text>
           <TouchableOpacity style={styles.imageButton} onPress={() => pickImage('selfie')}>
             {fotoSelfie ? (
               <Image source={{ uri: fotoSelfie.uri }} style={styles.imagePreview} />
             ) : (
               <>
                 <Icon name="camera" size={24} color={colors.secondary} />
-                <Text style={styles.imageButtonText}>Pilih Foto Selfie</Text>
+                <Text style={styles.imageButtonText}>
+                  {user?.status_verifikasi === 'rejected' ? 'Upload Ulang Foto Selfie' : 'Ganti Foto Selfie (Opsional)'}
+                </Text>
               </>
             )}
           </TouchableOpacity>
@@ -161,7 +200,7 @@ const CompleteProfileScreen = ({ navigation }: any) => {
           onPress={handleSubmit}
           disabled={loading}>
           <Text style={styles.buttonText}>
-            {loading ? 'Menyimpan...' : 'Simpan'}
+            {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -174,22 +213,51 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    color: colors.white,
+  },
   content: {
     flex: 1,
     padding: 20,
   },
-  title: {
-    fontFamily: fonts.bold,
-    fontSize: 32,
-    color: colors.white,
-    marginBottom: 8,
-    marginTop: 20,
+  rejectedBanner: {
+    flexDirection: 'row',
+    backgroundColor: colors.cardBackground,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    borderLeftWidth: 4,
+    borderLeftColor: '#F44336',
   },
-  subtitle: {
+  bannerContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  bannerTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    color: '#F44336',
+    marginBottom: 4,
+  },
+  bannerText: {
     fontFamily: fonts.book,
-    fontSize: 16,
+    fontSize: 12,
     color: colors.secondary,
-    marginBottom: 32,
+    lineHeight: 18,
   },
   inputContainer: {
     marginBottom: 20,
@@ -199,6 +267,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.white,
     marginBottom: 8,
+  },
+  required: {
+    color: '#F44336',
   },
   input: {
     backgroundColor: colors.cardBackground,
@@ -227,6 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.secondary,
     marginTop: 8,
+    textAlign: 'center',
   },
   imagePreview: {
     width: '100%',
@@ -251,4 +323,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CompleteProfileScreen;
+export default EditProfileScreen;

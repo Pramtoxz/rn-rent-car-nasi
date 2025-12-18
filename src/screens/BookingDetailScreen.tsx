@@ -41,43 +41,21 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
       setUploading(true);
 
       try {
-        console.log('=== UPLOAD BUKTI ===');
-        console.log('Image URI:', image.uri);
-        console.log('Image Type:', image.type);
-        console.log('Image Name:', image.fileName);
-        console.log('Booking ID:', bookingId);
+        const data = {
+          bukti_bayar: {
+            uri: image.uri || '',
+            type: image.type || 'image/jpeg',
+            name: image.fileName || `bukti_${Date.now()}.jpg`,
+          },
+        };
 
-        const formData = new FormData();
-        
-        // Prepare file object
-        const fileUri = image.uri;
-        const fileType = image.type || 'image/jpeg';
-        const fileName = image.fileName || `bukti_${Date.now()}.jpg`;
-
-        // For Android, remove 'file://' prefix if exists
-        const uri = fileUri?.startsWith('file://') ? fileUri : `file://${fileUri}`;
-
-        formData.append('bukti_bayar', {
-          uri: uri,
-          type: fileType,
-          name: fileName,
-        } as any);
-
-        console.log('FormData prepared with URI:', uri);
-        const response = await bookingService.uploadBuktiBayar(bookingId, formData);
-        console.log('Upload response:', response);
+        const response = await bookingService.uploadBuktiBayar(bookingId, data);
 
         showAlert.success('Bukti pembayaran berhasil diupload, menunggu verifikasi admin');
         setTimeout(() => {
           loadBookingDetail();
         }, 1000);
       } catch (error: any) {
-        console.log('=== UPLOAD ERROR ===');
-        console.log('Error:', error);
-        console.log('Error message:', error.message);
-        console.log('Error response:', error.response?.data);
-        console.log('Error status:', error.response?.status);
-        
         const errorMessage = error.response?.data?.message || 
                            error.response?.data?.error || 
                            error.message || 

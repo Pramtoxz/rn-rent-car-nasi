@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow all cleartext traffic (for development) -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Specific domain config -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">rentcarnasi.myserverku.web.id</domain>
+        <domain includeSubdomains="true">myserverku.web.id</domain>
+    </domain-config>
+</network-security-config>

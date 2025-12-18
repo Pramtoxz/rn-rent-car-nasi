@@ -11,6 +11,7 @@ import MapTrackingScreen from '../screens/MapTrackingScreen';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyOTPScreen from '../screens/VerifyOTPScreen';
 import CompleteProfileScreen from '../screens/CompleteProfileScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MobilListScreen from '../screens/MobilListScreen';
 import { ActivityIndicator, View } from 'react-native';
@@ -40,6 +41,7 @@ const Navigation = () => {
       ) : (
         <>
           <Stack.Screen name="Main" component={BottomTabNavigator} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
           <Stack.Screen name="Booking" component={BookingScreen} />
           <Stack.Screen name="BookingList" component={BookingListScreen} />

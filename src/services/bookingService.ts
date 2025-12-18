@@ -1,5 +1,6 @@
 import api from './api';
 import { Mobil } from './mobilService';
+import { uploadService } from './uploadService';
 
 export interface CreateBookingRequest {
   mobil_id: number;
@@ -33,24 +34,9 @@ export const bookingService = {
     return response.data;
   },
 
-  async uploadBuktiBayar(bookingId: number, file: FormData) {
-    try {
-      console.log('bookingService - Upload URL:', `/booking/${bookingId}/upload-bukti`);
-      const response = await api.post(`/booking/${bookingId}/upload-bukti`, file, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        transformRequest: (data, headers) => {
-          // Let axios handle FormData automatically
-          return data;
-        },
-      });
-      console.log('bookingService - Upload success:', response.data);
-      return response.data;
-    } catch (error: any) {
-      console.log('bookingService - Upload error:', error.response?.data);
-      throw error;
-    }
+  async uploadBuktiBayar(bookingId: number, data: any) {
+    const response = await uploadService.uploadWithFormData(`/booking/${bookingId}/upload-bukti`, data);
+    return response;
   },
 
   async getMyBookings(): Promise<{ success: boolean; message: string; data: Booking[] }> {

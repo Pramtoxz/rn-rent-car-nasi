@@ -1,5 +1,6 @@
 import api from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { uploadService } from './uploadService';
 
 export interface User {
   id: number;
@@ -26,13 +27,15 @@ export const authService = {
     return response.data;
   },
 
-  async completeProfile(formData: FormData) {
-    const response = await api.post('/auth/complete-profile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+  async completeProfile(data: any) {
+    const response = await uploadService.uploadWithFormData('/auth/complete-profile', data);
+    return response;
+  },
+
+  async updateProfile(data: any) {
+    // Gunakan rn-fetch-blob untuk upload file yang lebih reliable
+    const response = await uploadService.uploadWithFormData('/profile/update', data);
+    return response;
   },
 
   async getProfile(): Promise<User> {

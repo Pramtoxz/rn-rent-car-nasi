@@ -122,11 +122,20 @@ const ProfileScreen = ({ navigation }: any) => {
                 {user?.status_verifikasi === 'pending'
                   ? 'Akun Anda sedang dalam proses verifikasi oleh admin. Anda belum dapat melakukan booking mobil.'
                   : user?.status_verifikasi === 'rejected'
-                  ? 'Akun Anda ditolak oleh admin. Silakan hubungi customer service untuk informasi lebih lanjut.'
+                  ? 'Akun Anda ditolak oleh admin. Silakan perbaiki data Anda dan kirim ulang.'
                   : 'Lengkapi profil Anda untuk dapat melakukan booking mobil.'}
               </Text>
             </View>
           </View>
+        )}
+
+        {(user?.status_verifikasi === 'pending' || user?.status_verifikasi === 'rejected') && (
+          <TouchableOpacity 
+            style={styles.editButton} 
+            onPress={() => navigation.navigate('EditProfile')}>
+            <Icon name="edit" size={20} color={colors.background} />
+            <Text style={styles.editButtonText}>Edit Profil</Text>
+          </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -249,6 +258,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.secondary,
     lineHeight: 18,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  editButtonText: {
+    fontFamily: fonts.bold,
+    fontSize: 16,
+    color: colors.background,
   },
   logoutButton: {
     flexDirection: 'row',
