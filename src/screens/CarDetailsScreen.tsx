@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { mobilService, Mobil } from '../services/mobilService';
 import { useAuth } from '../context/AuthContext';
+import { showAlert } from '../utils/alert';
 
 const CarDetailsScreen = ({ route, navigation }: any) => {
   const { carId } = route.params;
@@ -22,7 +23,7 @@ const CarDetailsScreen = ({ route, navigation }: any) => {
       const data = await mobilService.getMobilDetail(carId);
       setMobil(data);
     } catch (error) {
-      Alert.alert('Error', 'Gagal memuat detail mobil');
+      showAlert.error('Gagal memuat detail mobil');
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -37,16 +38,16 @@ const CarDetailsScreen = ({ route, navigation }: any) => {
       } else if (user?.status_verifikasi === 'rejected') {
         message = 'Akun Anda ditolak oleh admin';
       }
-      Alert.alert('Tidak Dapat Booking', message);
+      showAlert.warning(message, 'Tidak Dapat Booking');
       return;
     }
 
     if (mobil?.status !== 'tersedia') {
-      Alert.alert('Tidak Tersedia', 'Mobil ini sedang tidak tersedia');
+      showAlert.warning('Mobil ini sedang tidak tersedia', 'Tidak Tersedia');
       return;
     }
 
-    navigation.navigate('MapTracking', { mobil });
+    navigation.navigate('Booking', { mobil });
   };
 
   if (loading) {

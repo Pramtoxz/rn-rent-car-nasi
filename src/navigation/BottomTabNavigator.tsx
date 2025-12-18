@@ -2,6 +2,8 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Feather';
 import HomeScreen from '../screens/HomeScreen';
+import MobilListScreen from '../screens/MobilListScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { colors } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -29,6 +31,13 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="MobilList"
+        component={MobilListScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Icon name="list" size={24} color={color} />,
+        }}
+      />
+      <Tab.Screen
         name="Bookmark"
         component={HomeScreen}
         options={{
@@ -36,17 +45,10 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Notifications"
-        component={HomeScreen}
+        name="Profile"
+        component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color }) => <Icon name="bell" size={24} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="MobilList"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Icon name="list" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Icon name="user" size={24} color={color} />,
         }}
       />
     </Tab.Navigator>

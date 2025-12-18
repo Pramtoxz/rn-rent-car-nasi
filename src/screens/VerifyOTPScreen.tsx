@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { useAuth } from '../context/AuthContext';
+import { showAlert } from '../utils/alert';
 
 const VerifyOTPScreen = ({ route, navigation }: any) => {
   const { nohp } = route.params;
@@ -13,20 +14,21 @@ const VerifyOTPScreen = ({ route, navigation }: any) => {
 
   const handleVerifyOTP = async () => {
     if (!otpCode || otpCode.length !== 6) {
-      Alert.alert('Error', 'Masukkan kode OTP 6 digit');
+      showAlert.error('Masukkan kode OTP 6 digit');
       return;
     }
 
     setLoading(true);
     try {
       const response = await login(nohp, otpCode);
+      showAlert.success('OTP berhasil diverifikasi');
       
       if (response.data.needs_profile) {
         navigation.replace('CompleteProfile');
       }
       // No need to navigate, AuthContext will handle the navigation
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Kode OTP tidak valid');
+      showAlert.error(error.response?.data?.message || 'Kode OTP tidak valid');
     } finally {
       setLoading(false);
     }

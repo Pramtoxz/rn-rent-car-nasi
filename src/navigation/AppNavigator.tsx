@@ -4,6 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import BottomTabNavigator from './BottomTabNavigator';
 import CarDetailsScreen from '../screens/CarDetailsScreen';
+import BookingScreen from '../screens/BookingScreen';
+import BookingListScreen from '../screens/BookingListScreen';
+import BookingDetailScreen from '../screens/BookingDetailScreen';
 import MapTrackingScreen from '../screens/MapTrackingScreen';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyOTPScreen from '../screens/VerifyOTPScreen';
@@ -38,9 +41,10 @@ const Navigation = () => {
         <>
           <Stack.Screen name="Main" component={BottomTabNavigator} />
           <Stack.Screen name="CarDetails" component={CarDetailsScreen} />
+          <Stack.Screen name="Booking" component={BookingScreen} />
+          <Stack.Screen name="BookingList" component={BookingListScreen} />
+          <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
           <Stack.Screen name="MapTracking" component={MapTrackingScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="MobilList" component={MobilListScreen} />
         </>
       )}
     </Stack.Navigator>

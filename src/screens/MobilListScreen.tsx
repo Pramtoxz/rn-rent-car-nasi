@@ -13,25 +13,30 @@ const MobilListScreen = ({ navigation }: any) => {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'manual' | 'automatic'>('all');
 
   useEffect(() => {
-    loadMobils();
+    // Delay untuk search query agar tidak terlalu banyak request
+    const timeoutId = setTimeout(() => {
+      loadMobils();
+    }, searchQuery ? 500 : 0);
+
+    return () => clearTimeout(timeoutId);
   }, [selectedFilter, searchQuery]);
 
   const loadMobils = async () => {
     setLoading(true);
     try {
-      const filters: MobilFilters = {
-        status: 'tersedia',
-      };
+      const filters: MobilFilters = {};
       if (selectedFilter !== 'all') {
         filters.transmisi = selectedFilter;
       }
       if (searchQuery) {
         filters.search = searchQuery;
       }
+      
       const response = await mobilService.getAllMobil(filters);
-      setMobils(response.data);
-    } catch (error) {
-      console.log('Error loading mobils:', error);
+      const mobilsData = response.data || [];
+      setMobils(mobilsData);
+    } catch (error: any) {
+      console.log('Error loading mobils:', error.message);
     } finally {
       setLoading(false);
     }

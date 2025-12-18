@@ -33,7 +33,9 @@ export const mobilService = {
     if (filters?.status) params.append('status', filters.status);
     if (filters?.search) params.append('search', filters.search);
 
-    const response = await api.get(`/mobil?${params.toString()}`);
+    const queryString = params.toString();
+    const url = queryString ? `/mobil?${queryString}` : '/mobil';
+    const response = await api.get(url);
     return response.data;
   },
 

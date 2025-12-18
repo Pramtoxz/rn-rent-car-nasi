@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
+import { Dialog, ALERT_TYPE } from 'react-native-alert-notification';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { useAuth } from '../context/AuthContext';
@@ -10,17 +11,17 @@ const ProfileScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Apakah Anda yakin ingin keluar?', [
-      { text: 'Batal', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          // Navigation will be handled by AuthContext
-        },
+    Dialog.show({
+      type: ALERT_TYPE.WARNING,
+      title: 'Logout',
+      textBody: 'Apakah Anda yakin ingin keluar?',
+      button: 'Logout',
+      onPressButton: async () => {
+        Dialog.hide();
+        await logout();
+        // Navigation will be handled by AuthContext
       },
-    ]);
+    });
   };
 
   const getStatusColor = () => {

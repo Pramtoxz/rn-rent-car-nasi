@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { authService } from '../services/authService';
+import { showAlert } from '../utils/alert';
 
 const LoginScreen = ({ navigation }: any) => {
   const [nohp, setNohp] = useState('');
@@ -11,17 +12,17 @@ const LoginScreen = ({ navigation }: any) => {
 
   const handleRequestOTP = async () => {
     if (!nohp || nohp.length < 10) {
-      Alert.alert('Error', 'Masukkan nomor HP yang valid');
+      showAlert.error('Masukkan nomor HP yang valid');
       return;
     }
 
     setLoading(true);
     try {
       const response = await authService.requestOTP(nohp);
-      Alert.alert('Sukses', response.message);
+      showAlert.success(response.message);
       navigation.navigate('VerifyOTP', { nohp });
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Gagal mengirim OTP');
+      showAlert.error(error.response?.data?.message || 'Gagal mengirim OTP');
     } finally {
       setLoading(false);
     }

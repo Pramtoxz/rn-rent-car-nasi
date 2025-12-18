@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Feather';
@@ -7,6 +7,7 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { showAlert } from '../utils/alert';
 
 const CompleteProfileScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -35,7 +36,7 @@ const CompleteProfileScreen = ({ navigation }: any) => {
 
   const handleSubmit = async () => {
     if (!name || !email || !nik || !alamat || !fotoKTP || !fotoSelfie) {
-      Alert.alert('Error', 'Semua field harus diisi');
+      showAlert.error('Semua field harus diisi');
       return;
     }
 
@@ -59,16 +60,10 @@ const CompleteProfileScreen = ({ navigation }: any) => {
 
       await authService.completeProfile(formData);
       await refreshUser();
-      Alert.alert('Sukses', 'Profil berhasil dilengkapi, menunggu verifikasi admin', [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Navigation will be handled by AuthContext
-          }
-        }
-      ]);
+      showAlert.success('Profil berhasil dilengkapi, menunggu verifikasi admin');
+      // Navigation will be handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Gagal melengkapi profil');
+      showAlert.error(error.response?.data?.message || 'Gagal melengkapi profil');
     } finally {
       setLoading(false);
     }

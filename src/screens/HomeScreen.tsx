@@ -19,8 +19,8 @@ const HomeScreen = ({ navigation }: any) => {
     try {
       const response = await mobilService.getRekomendasiMobil();
       setRekomendasi(response.data);
-    } catch (error) {
-      console.log('Error loading rekomendasi:', error);
+    } catch (error: any) {
+      console.log('Error loading rekomendasi:', error.message);
     } finally {
       setLoading(false);
     }
@@ -30,24 +30,24 @@ const HomeScreen = ({ navigation }: any) => {
   { 
     id: 1, 
     name: 'Mobil', 
-    image: require('../assets/images/icon/car.png'),
+    image: require('../assets/images/icon/mobil.png'),
     onPress: () => navigation.navigate('MobilList')
   },
   { 
     id: 2, 
-    name: 'Riwayat', 
+    name: 'Riwayat',
     image: require('../assets/images/icon/history.png'),
-    onPress: () => {}
+    onPress: () => navigation.navigate('BookingList')
   },
   { 
     id: 3, 
-    name: 'Profile', 
-    image: require('../assets/images/icon/profile.png'),
-    onPress: () => navigation.navigate('Profile')
+    name: 'Promo', 
+    image: require('../assets/images/icon/about.png'),
+    onPress: () => {}
   },
   { 
     id: 4, 
-    name: 'About',
+    name: 'Bantuan',
     image: require('../assets/images/icon/about.png'),
     onPress: () => {}
   },
