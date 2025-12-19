@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, ImageBackground, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { mobilService, Mobil } from '../services/mobilService';
+import LoadingLottie from '../components/LoadingLottie';
 
 const HomeScreen = ({ navigation }: any) => {
   const [rekomendasi, setRekomendasi] = useState<Mobil[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -24,6 +26,12 @@ const HomeScreen = ({ navigation }: any) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadRekomendasi();
+    setRefreshing(false);
   };
 
   const MENU_ITEMS = [
@@ -55,8 +63,20 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.whiteSection}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }>
+        <ImageBackground 
+          source={require('../assets/images/maps.jpg')}
+          style={styles.whiteSection}
+          imageStyle={styles.backgroundImage}>
           <View style={styles.header}>
             <View style={styles.locationContainer}>
               <Icon name="map-pin" size={20} color={colors.primary} />
@@ -90,7 +110,7 @@ const HomeScreen = ({ navigation }: any) => {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </ImageBackground>
 
         <View style={styles.darkSection}>
         <View style={styles.section}>
@@ -119,7 +139,9 @@ const HomeScreen = ({ navigation }: any) => {
               </TouchableOpacity>
             </View>
             {loading ? (
-              <ActivityIndicator size="large" color={colors.primary} style={{ marginLeft: 20 }} />
+              <View style={{ marginLeft: 20 }}>
+                <LoadingLottie size={100} />
+              </View>
             ) : (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {rekomendasi.map(car => (
@@ -149,13 +171,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   whiteSection: {
-    backgroundColor: colors.white,
     paddingBottom: 24,
+  },
+  backgroundImage: {
+    opacity: 1,
+    resizeMode: 'cover',
   },
   darkSection: {
     backgroundColor: colors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
     paddingTop: 24,
     paddingBottom: 120,
   },
@@ -174,12 +197,12 @@ const styles = StyleSheet.create({
   locationLabel: {
     fontFamily: fonts.book,
     fontSize: 12,
-    color: colors.secondary,
+    color: colors.white,
   },
   locationText: {
     fontFamily: fonts.bold,
     fontSize: 16,
-    color: colors.background,
+    color: colors.white,
   },
   avatar: {
     width: 40,
@@ -196,7 +219,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.bold,
     fontSize: 28,
-    color: colors.cardBackground,
+    color: colors.white,
     marginBottom: 20,
   },
   searchContainer: {
@@ -274,7 +297,6 @@ const styles = StyleSheet.create({
   menuImage: {
     width: 36, 
     height: 36,
-    // tintColor: colors.primary,
   },
   carCard: {
     width: 200,
