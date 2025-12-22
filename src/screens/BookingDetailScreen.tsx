@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -7,6 +7,8 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { bookingService, Booking } from '../services/bookingService';
 import { showAlert } from '../utils/alert';
+import LoadingLottie from '../components/LoadingLottie';
+import { useFocusEffect } from '@react-navigation/native';
 
 const BookingDetailScreen = ({ navigation, route }: any) => {
   const { bookingId } = route.params;
@@ -14,56 +16,58 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    loadBookingDetail();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadBookingDetail();
+    }, [])
+  );
 
   const loadBookingDetail = async () => {
     try {
+      setLoading(true);
       const response = await bookingService.getBookingDetail(bookingId);
       setBooking(response.data);
-    } catch (error) {
+    } catch (error: any) {
+      console.log('Error loading booking detail:', error.message);
       showAlert.error('Gagal memuat detail booking');
       navigation.goBack();
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 
   const handleUploadBukti = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    });
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+      });
 
-    if (result.assets && result.assets[0]) {
-      const image = result.assets[0];
-      setUploading(true);
-
-      try {
-        const data = {
-          bukti_bayar: {
-            uri: image.uri || '',
-            type: image.type || 'image/jpeg',
-            name: image.fileName || `bukti_${Date.now()}.jpg`,
-          },
+      if (result.assets && result.assets[0]) {
+        setUploading(true);
+        const asset = result.assets[0];
+        
+        const removePrefix = (uri: string) => {
+          return uri.replace('file://', '');
         };
 
-        const response = await bookingService.uploadBuktiBayar(bookingId, data);
+        const formData = new FormData();
+        formData.append('bukti_pembayaran', {
+          uri: Platform.OS === 'android' ? asset.uri : removePrefix(asset.uri!),
+          type: asset.type,
+          name: asset.fileName,
+        } as any); // Cast to any to satisfy FormData.append type for File
 
-        showAlert.success('Bukti pembayaran berhasil diupload, menunggu verifikasi admin');
-        setTimeout(() => {
-          loadBookingDetail();
-        }, 1000);
-      } catch (error: any) {
-        const errorMessage = error.response?.data?.message || 
-                           error.response?.data?.error || 
-                           error.message || 
-                           'Gagal upload bukti pembayaran';
-        showAlert.error(errorMessage);
-      } finally {
-        setUploading(false);
+        await bookingService.uploadBuktiBayar(bookingId, formData);
+        showAlert.success('Bukti pembayaran berhasil diupload');
+        loadBookingDetail(); // Reload detail to update status
       }
+    } catch (error: any) {
+      showAlert.error(error.response?.data?.message || 'Gagal upload bukti pembayaran');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -373,5 +377,6 @@ const styles = StyleSheet.create({
     color: colors.background,
   },
 });
+
 
 export default BookingDetailScreen;

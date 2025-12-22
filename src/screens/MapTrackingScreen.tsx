@@ -4,8 +4,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
+import LoadingLottie from '../components/LoadingLottie';
 
 const MapTrackingScreen = ({ navigation }: any) => {
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <LoadingLottie />
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}

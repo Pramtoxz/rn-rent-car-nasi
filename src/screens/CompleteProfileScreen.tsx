@@ -8,6 +8,7 @@ import { fonts } from '../theme/fonts';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { showAlert } from '../utils/alert';
+import LoadingLottie from '../components/LoadingLottie';
 
 const CompleteProfileScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -157,13 +158,19 @@ const CompleteProfileScreen = ({ navigation }: any) => {
         </View>
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={styles.button}
           onPress={handleSubmit}
           disabled={loading}>
           <Text style={styles.buttonText}>
-            {loading ? 'Menyimpan...' : 'Simpan'}
+            Simpan
           </Text>
         </TouchableOpacity>
+        
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <LoadingLottie />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -248,6 +255,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 16,
     color: colors.background,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });
 

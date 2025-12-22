@@ -7,6 +7,7 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { bookingService } from '../services/bookingService';
 import { showAlert } from '../utils/alert';
+import LoadingLottie from '../components/LoadingLottie';
 
 const BookingScreen = ({ navigation, route }: any) => {
   const { mobil } = route.params;
@@ -147,10 +148,16 @@ const BookingScreen = ({ navigation, route }: any) => {
           onPress={handleBooking}
           disabled={loading}>
           <Text style={styles.bookButtonText}>
-            {loading ? 'Memproses...' : 'Konfirmasi Booking'}
+            Konfirmasi Booking
           </Text>
         </TouchableOpacity>
       </View>
+      
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <LoadingLottie />
+        </View>
+      )}
 
       {/* Date Picker Modals */}
       <DatePicker
@@ -328,6 +335,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 16,
     color: colors.background,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });
 

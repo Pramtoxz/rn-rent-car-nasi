@@ -8,6 +8,7 @@ import { fonts } from '../theme/fonts';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { showAlert } from '../utils/alert';
+import LoadingLottie from '../components/LoadingLottie';
 
 const EditProfileScreen = ({ navigation }: any) => {
   const { user, refreshUser } = useAuth();
@@ -18,6 +19,13 @@ const EditProfileScreen = ({ navigation }: any) => {
   const [fotoKTP, setFotoKTP] = useState<any>(null);
   const [fotoSelfie, setFotoSelfie] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      setInitialLoading(false);
+    }, 1000);
+  }, []);
 
   const pickImage = async (type: 'ktp' | 'selfie') => {
     const result = await launchImageLibrary({
@@ -40,7 +48,6 @@ const EditProfileScreen = ({ navigation }: any) => {
       return;
     }
 
-    // Jika status rejected, wajib upload ulang foto
     if (user?.status_verifikasi === 'rejected' && (!fotoKTP || !fotoSelfie)) {
       showAlert.error('Untuk akun yang ditolak, wajib upload ulang foto KTP dan Selfie');
       return;
@@ -54,13 +61,12 @@ const EditProfileScreen = ({ navigation }: any) => {
         nik,
         alamat,
       };
-      
-      // Upload foto baru jika ada
+
       if (fotoKTP) {
         data.foto_ktp = {
           uri: fotoKTP.uri,
           type: fotoKTP.type || 'image/jpeg',
-          name: fotoKTP.fileName || `ktp_${Date.now()}.jpg`,
+          name: fotoKTP.fsileName || `ktp_${Date.now()}.jpg`,
         };
       }
       
@@ -86,6 +92,14 @@ const EditProfileScreen = ({ navigation }: any) => {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LoadingLottie />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -196,13 +210,19 @@ const EditProfileScreen = ({ navigation }: any) => {
         </View>
 
         <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={styles.button}
           onPress={handleSubmit}
           disabled={loading}>
           <Text style={styles.buttonText}>
-            {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+            Simpan Perubahan
           </Text>
         </TouchableOpacity>
+        
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <LoadingLottie />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -212,6 +232,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -320,6 +346,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 16,
     color: colors.background,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });
 

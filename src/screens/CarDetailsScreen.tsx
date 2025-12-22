@@ -5,6 +5,8 @@ import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { mobilService, Mobil } from '../services/mobilService';
+import { useFocusEffect } from '@react-navigation/native';
+import LoadingLottie from '../components/LoadingLottie';
 import { useAuth } from '../context/AuthContext';
 import { showAlert } from '../utils/alert';
 
@@ -14,11 +16,14 @@ const CarDetailsScreen = ({ route, navigation }: any) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    loadMobilDetail();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadMobilDetail();
+    }, [carId])
+  );
 
   const loadMobilDetail = async () => {
+    setLoading(true);
     try {
       const data = await mobilService.getMobilDetail(carId);
       setMobil(data);
@@ -26,7 +31,9 @@ const CarDetailsScreen = ({ route, navigation }: any) => {
       showAlert.error('Gagal memuat detail mobil');
       navigation.goBack();
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 
@@ -52,9 +59,9 @@ const CarDetailsScreen = ({ route, navigation }: any) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1 }} />
-      </SafeAreaView>
+      <View style={styles.loadingContainer}>
+        <LoadingLottie />
+      </View>
     );
   }
 
@@ -177,6 +184,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',

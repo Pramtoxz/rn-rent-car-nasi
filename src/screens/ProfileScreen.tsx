@@ -6,9 +6,31 @@ import { Dialog, ALERT_TYPE } from 'react-native-alert-notification';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { useAuth } from '../context/AuthContext';
+import LoadingLottie from '../components/LoadingLottie';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }: any) => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
+  const [loading, setLoading] = React.useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadProfile();
+    }, [])
+  );
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      await refreshUser();
+    } catch (error) {
+      console.log('Error refreshing profile:', error);
+    } finally {
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    }
+  };
 
   const handleLogout = () => {
     Dialog.show({
@@ -49,6 +71,14 @@ const ProfileScreen = ({ navigation }: any) => {
         return 'Belum Verifikasi';
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LoadingLottie />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -151,6 +181,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image, ImageBackground, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
@@ -13,18 +14,23 @@ const HomeScreen = ({ navigation }: any) => {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    loadRekomendasi();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadRekomendasi();
+    }, [])
+  );
 
   const loadRekomendasi = async () => {
+    setLoading(true);
     try {
       const response = await mobilService.getRekomendasiMobil();
       setRekomendasi(response.data);
     } catch (error: any) {
       console.log('Error loading rekomendasi:', error.message);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 
@@ -139,8 +145,8 @@ const HomeScreen = ({ navigation }: any) => {
               </TouchableOpacity>
             </View>
             {loading ? (
-              <View style={{ marginLeft: 20 }}>
-                <LoadingLottie size={100} />
+              <View style={{ flex: 1, height: 200 }}>
+                <LoadingLottie />
               </View>
             ) : (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>

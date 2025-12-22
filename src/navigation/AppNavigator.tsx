@@ -16,11 +16,17 @@ import ProfileScreen from '../screens/ProfileScreen';
 import MobilListScreen from '../screens/MobilListScreen';
 import { ActivityIndicator, View } from 'react-native';
 import { colors } from '../theme/colors';
+import SplashScreen from '../screens/SplashScreen';
 
 const Stack = createStackNavigator();
 
 const Navigation = () => {
   const { isAuthenticated, loading } = useAuth();
+  const [isSplashFinished, setIsSplashFinished] = React.useState(false);
+
+  if (!isSplashFinished) {
+    return <SplashScreen onFinish={() => setIsSplashFinished(true)} />;
+  }
 
   if (loading) {
     return (

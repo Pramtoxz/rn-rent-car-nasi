@@ -5,6 +5,8 @@ import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { mobilService, Mobil, MobilFilters } from '../services/mobilService';
+import LoadingLottie from '../components/LoadingLottie';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MobilListScreen = ({ navigation }: any) => {
   const [mobils, setMobils] = useState<Mobil[]>([]);
@@ -12,18 +14,15 @@ const MobilListScreen = ({ navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'manual' | 'automatic'>('all');
 
-  useEffect(() => {
-    // Delay untuk search query agar tidak terlalu banyak request
-    const timeoutId = setTimeout(() => {
+  useFocusEffect(
+    React.useCallback(() => {
       loadMobils();
-    }, searchQuery ? 500 : 0);
-
-    return () => clearTimeout(timeoutId);
-  }, [selectedFilter, searchQuery]);
+    }, [selectedFilter, searchQuery])
+  );
 
   const loadMobils = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const filters: MobilFilters = {};
       if (selectedFilter !== 'all') {
         filters.transmisi = selectedFilter;
@@ -31,14 +30,15 @@ const MobilListScreen = ({ navigation }: any) => {
       if (searchQuery) {
         filters.search = searchQuery;
       }
-      
       const response = await mobilService.getAllMobil(filters);
       const mobilsData = response.data || [];
       setMobils(mobilsData);
     } catch (error: any) {
       console.log('Error loading mobils:', error.message);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
   };
 
@@ -109,7 +109,9 @@ const MobilListScreen = ({ navigation }: any) => {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1 }} />
+        <View style={styles.centerContainer}>
+          <LoadingLottie />
+        </View>
       ) : (
         <FlatList
           data={mobils}
@@ -127,6 +129,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',

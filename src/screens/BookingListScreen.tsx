@@ -5,24 +5,31 @@ import Icon from 'react-native-vector-icons/Feather';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { bookingService, Booking } from '../services/bookingService';
+import LoadingLottie from '../components/LoadingLottie';
+import { useFocusEffect } from '@react-navigation/native';
 
 const BookingListScreen = ({ navigation }: any) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    loadBookings();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadBookings();
+    }, [])
+  );
 
   const loadBookings = async () => {
+    setLoading(true);
     try {
       const response = await bookingService.getMyBookings();
       setBookings(response.data);
-    } catch (error) {
-      console.log('Error loading bookings:', error);
+    } catch (error: any) {
+      console.log('Error loading bookings:', error.message);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
       setRefreshing(false);
     }
   };
@@ -109,21 +116,6 @@ const BookingListScreen = ({ navigation }: any) => {
     </TouchableOpacity>
   );
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Icon name="arrow-left" size={24} color={colors.white} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Riwayat Booking</Text>
-          <View style={{ width: 40 }} />
-        </View>
-        <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1 }} />
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -134,7 +126,11 @@ const BookingListScreen = ({ navigation }: any) => {
         <View style={{ width: 40 }} />
       </View>
 
-      {bookings.length === 0 ? (
+      {loading ? (
+        <View style={styles.centerContainer}>
+          <LoadingLottie />
+        </View>
+      ) : bookings.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Icon name="inbox" size={64} color={colors.secondary} />
           <Text style={styles.emptyText}>Belum ada booking</Text>
@@ -159,6 +155,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
