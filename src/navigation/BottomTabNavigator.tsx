@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import HomeScreen from '../screens/HomeScreen';
 import MobilListScreen from '../screens/MobilListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import BookingList from '../screens/BookingListScreen';
 import { colors } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -39,7 +40,7 @@ const BottomTabNavigator = () => {
       />
       <Tab.Screen
         name="Bookmark"
-        component={HomeScreen}
+        component={BookingList}
         options={{
           tabBarIcon: ({ color }) => <Icon name="bookmark" size={24} color={color} />,
         }}

@@ -44,7 +44,7 @@ const HomeScreen = ({ navigation }: any) => {
   { 
     id: 1, 
     name: 'Mobil', 
-    image: require('../assets/images/icon/mobil.png'),
+    image: require('../assets/images/icon/kunci.png'),
     onPress: () => navigation.navigate('MobilList')
   },
   { 
@@ -55,15 +55,15 @@ const HomeScreen = ({ navigation }: any) => {
   },
   { 
     id: 3, 
-    name: 'Promo', 
-    image: require('../assets/images/icon/about.png'),
+    name: 'Profile', 
+    image: require('../assets/images/icon/profile.png'),
     onPress: () => {}
   },
   { 
     id: 4, 
-    name: 'Bantuan',
+    name: 'About',
     image: require('../assets/images/icon/about.png'),
-    onPress: () => {}
+    onPress: () =>navigation.navigate('About')
   },
 ];
 
@@ -85,7 +85,7 @@ const HomeScreen = ({ navigation }: any) => {
           imageStyle={styles.backgroundImage}>
           <View style={styles.header}>
             <View style={styles.locationContainer}>
-              <Icon name="map-pin" size={20} color={colors.primary} />
+              <Icon name="map-pin" size={20} color={colors.background} />
               <View>
                 <Text style={styles.locationLabel}>Lokasi</Text>
                 <Text style={styles.locationText}>Padang, Sumatera Barat</Text>
@@ -174,19 +174,19 @@ const HomeScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
   },
   whiteSection: {
     paddingBottom: 24,
   },
   backgroundImage: {
-    opacity: 1,
+    opacity: 0.9,
     resizeMode: 'cover',
   },
   darkSection: {
     backgroundColor: colors.background,
     paddingTop: 24,
-    paddingBottom: 120,
+    paddingBottom: 150,
   },
   header: {
     flexDirection: 'row',
@@ -203,18 +203,18 @@ const styles = StyleSheet.create({
   locationLabel: {
     fontFamily: fonts.book,
     fontSize: 12,
-    color: colors.white,
+    color: colors.background,
   },
   locationText: {
     fontFamily: fonts.bold,
     fontSize: 16,
-    color: colors.white,
+    color: colors.background,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -224,8 +224,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fonts.bold,
-    fontSize: 28,
-    color: colors.white,
+    fontSize: 24,
+    color: colors.background,
     marginBottom: 20,
   },
   searchContainer: {

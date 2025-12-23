@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authService, User } from '../services/authService';
+import FCMService from '../services/FCMService';
 
 interface AuthContextType {
   user: User | null;
@@ -42,10 +43,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.data.user);
       setIsAuthenticated(true);
     }
+    // Send FCM token after successful login
+    await FCMService.initialize();
     return response;
   };
 
   const logout = async () => {
+    await FCMService.deleteToken();
     await authService.logout();
     setUser(null);
     setIsAuthenticated(false);

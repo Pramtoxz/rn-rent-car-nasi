@@ -133,7 +133,7 @@ const BookingListScreen = ({ navigation }: any) => {
       ) : bookings.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Icon name="inbox" size={64} color={colors.secondary} />
-          <Text style={styles.emptyText}>Belum ada booking</Text>
+          <Text style={styles.emptyText}>Belum Ada Riwayat Booking</Text>
         </View>
       ) : (
         <FlatList

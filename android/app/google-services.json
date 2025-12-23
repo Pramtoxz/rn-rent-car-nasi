@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "930125804990",
+    "project_id": "rent-car-nasi",
+    "storage_bucket": "rent-car-nasi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930125804990:android:e55186b440f0a61451b5ef",
+        "android_client_info": {
+          "package_name": "com.rentcarnasi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBS9TV8dmAPX2zjYYUvSVud56k_jGUL_6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

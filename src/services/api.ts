@@ -30,4 +30,8 @@ api.interceptors.request.use(
   },
 );
 
+export const updateFCMToken = async (fcmToken: string) => {
+  return await api.post('/fcm-token', { fcm_token: fcmToken });
+};
+
 export default api;

@@ -2,12 +2,13 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { navigationRef } from './navigationRef';
 import BottomTabNavigator from './BottomTabNavigator';
 import CarDetailsScreen from '../screens/CarDetailsScreen';
 import BookingScreen from '../screens/BookingScreen';
 import BookingListScreen from '../screens/BookingListScreen';
 import BookingDetailScreen from '../screens/BookingDetailScreen';
-import MapTrackingScreen from '../screens/MapTrackingScreen';
+import AboutScreen from '../screens/AboutScreen';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyOTPScreen from '../screens/VerifyOTPScreen';
 import CompleteProfileScreen from '../screens/CompleteProfileScreen';
@@ -52,7 +53,7 @@ const Navigation = () => {
           <Stack.Screen name="Booking" component={BookingScreen} />
           <Stack.Screen name="BookingList" component={BookingListScreen} />
           <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
-          <Stack.Screen name="MapTracking" component={MapTrackingScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
         </>
       )}
     </Stack.Navigator>
@@ -62,7 +63,7 @@ const Navigation = () => {
 const AppNavigator = () => {
   return (
     <AuthProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Navigation />
       </NavigationContainer>
     </AuthProvider>

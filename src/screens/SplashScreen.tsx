@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { colors } from '../theme/colors';
+import { fonts } from '../theme/fonts';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -24,6 +25,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         loop
         style={styles.lottie}
       />
+    <Text style={styles.textSplash}>Rent Car Nasi</Text>
+    <Text style={styles.textBody}>Tugas Akhir Mobile 2</Text>
     </View>
   );
 };
@@ -36,9 +39,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   lottie: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
   },
+  textSplash:{
+      fontFamily: fonts.bold,
+        fontSize: 24,
+        color: colors.background,
+  },
+    textBody:{
+      fontFamily: fonts.light,
+        fontSize: 18,
+        color: colors.background,
+  }
 });
 
 export default SplashScreen;
