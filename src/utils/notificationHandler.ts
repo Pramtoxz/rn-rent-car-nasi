@@ -30,7 +30,7 @@ export const handleNotification = (remoteMessage: RemoteMessage) => {
 
     case 'payment_verification':
       Alert.alert(
-        status === 'verified' ? '✅ Pembayaran Diverifikasi' : '❌ Pembayaran Ditolak',
+        status === 'verified' ? 'Pembayaran Diverifikasi' : 'Pembayaran Ditolak',
         status === 'verified'
           ? 'Pembayaran telah diverifikasi'
           : catatan || 'Pembayaran ditolak',
@@ -48,7 +48,6 @@ export const handleNotification = (remoteMessage: RemoteMessage) => {
       break;
 
     case 'broadcast':
-      // Broadcast notification - just show, no action needed
       break;
 
     default:

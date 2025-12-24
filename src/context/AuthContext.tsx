@@ -43,7 +43,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.data.user);
       setIsAuthenticated(true);
     }
-    // Send FCM token after successful login
     await FCMService.initialize();
     return response;
   };
@@ -59,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userData = await authService.getProfile();
       setUser(userData);
+      setIsAuthenticated(true);
     } catch (error) {
       console.log('Failed to refresh user:', error);
     }
