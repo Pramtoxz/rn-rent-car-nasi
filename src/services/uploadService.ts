@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 
-const BASE_URL = 'https://rentcarnasi.myserverku.web.id/api';
+const BASE_URL = 'http://172.20.10.3:8000/api';
 
 export const uploadService = {
   async uploadWithFormData(endpoint: string, data: any): Promise<any> {
@@ -16,13 +16,16 @@ export const uploadService = {
         
         if (value && typeof value === 'object' && value.uri) {
           let filePath = value.uri;
-          filePath = filePath.replace('file://', '').replace('content://', '');
+          // Hanya hapus file://, biarkan content:// tetap ada untuk Android
+          if (filePath.startsWith('file://')) {
+            filePath = filePath.replace('file://', '');
+          }
           
           multipartData.push({
             name: key,
             filename: value.name,
             type: value.type,
-            data: ReactNativeBlobUtil.wrap(filePath),
+            data: ReactNativeBlobUtil.wrap(decodeURI(filePath)),
           });
         } else if (value !== null && value !== undefined) {
           multipartData.push({
@@ -61,14 +64,16 @@ export const uploadService = {
         } catch (e) {
           if (responseData.includes('<!DOCTYPE') || responseData.includes('<html')) {
             if (status === 404) {
-              errorMessage = 'Endpoint tidak ditemukan';
+              errorMessage = `Endpoint tidak ditemukan (404)`;
             } else if (status === 500) {
-              errorMessage = 'Server error. Coba lagi nanti.';
+              errorMessage = `Server Error (500). Silakan cek log backend.`;
+            } else if (status === 405) {
+              errorMessage = `Method Not Allowed (405). Periksa route POST/PUT.`;
             } else {
-              errorMessage = `Server error (${status})`;
+              errorMessage = `Server Error (${status})`;
             }
           } else {
-            errorMessage = responseData.substring(0, 200);
+            errorMessage = `Upload gagal (${status}): ${responseData.substring(0, 50)}`;
           }
         }
         

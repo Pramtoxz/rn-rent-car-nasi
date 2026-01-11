@@ -1,4 +1,14 @@
-import messaging from '@react-native-firebase/messaging';
+import { 
+  getMessaging, 
+  requestPermission, 
+  getToken, 
+  onTokenRefresh, 
+  onMessage, 
+  setBackgroundMessageHandler, 
+  onNotificationOpenedApp, 
+  getInitialNotification, 
+  deleteToken 
+} from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, PermissionsAndroid } from 'react-native';
@@ -6,6 +16,16 @@ import { updateFCMToken } from './api';
 import { handleNotification } from '../utils/notificationHandler';
 
 class FCMService {
+  private messaging = getMessaging();
+  private messageListeners: ((message: any) => void)[] = [];
+
+  addMessageListener(listener: (message: any) => void) {
+    this.messageListeners.push(listener);
+    return () => {
+      this.messageListeners = this.messageListeners.filter(l => l !== listener);
+    };
+  }
+
   async initialize() {
     await this.requestPermission();
     await this.createChannel();
@@ -19,7 +39,7 @@ class FCMService {
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
       );
     }
-    await messaging().requestPermission();
+    await requestPermission(this.messaging);
   }
 
   async createChannel() {
@@ -32,7 +52,7 @@ class FCMService {
 
   async getFCMToken() {
     try {
-      const token = await messaging().getToken();
+      const token = await getToken(this.messaging);
       if (token) {
         await AsyncStorage.setItem('fcm_token', token);
         await this.sendTokenToServer(token);
@@ -42,7 +62,7 @@ class FCMService {
       console.error('Error getting FCM token:', error);
     }
     
-    messaging().onTokenRefresh(async (newToken) => {
+    onTokenRefresh(this.messaging, async (newToken) => {
       await AsyncStorage.setItem('fcm_token', newToken);
       await this.sendTokenToServer(newToken);
     });
@@ -62,7 +82,12 @@ class FCMService {
 
   setupHandlers() {
     // Foreground notifications
-    messaging().onMessage(async (remoteMessage) => {
+    onMessage(this.messaging, async (remoteMessage) => {
+      console.log('Foreground message received:', remoteMessage);
+      
+      // Notify custom listeners
+      this.messageListeners.forEach(listener => listener(remoteMessage));
+
       await notifee.displayNotification({
         title: remoteMessage.notification?.title,
         body: remoteMessage.notification?.body,
@@ -75,17 +100,17 @@ class FCMService {
     });
 
     // Background notifications
-    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+    setBackgroundMessageHandler(this.messaging, async (remoteMessage) => {
       console.log('Background message:', remoteMessage);
     });
 
     // Notification tap when app is in background
-    messaging().onNotificationOpenedApp((remoteMessage) => {
+    onNotificationOpenedApp(this.messaging, (remoteMessage) => {
       handleNotification(remoteMessage);
     });
 
     // App opened from quit state via notification
-    messaging().getInitialNotification().then((remoteMessage) => {
+    getInitialNotification(this.messaging).then((remoteMessage) => {
       if (remoteMessage) {
         handleNotification(remoteMessage);
       }
@@ -101,7 +126,7 @@ class FCMService {
 
   async deleteToken() {
     try {
-      await messaging().deleteToken();
+      await deleteToken(this.messaging);
       await AsyncStorage.removeItem('fcm_token');
       console.log('FCM token deleted');
     } catch (error) {

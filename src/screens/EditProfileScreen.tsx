@@ -66,7 +66,7 @@ const EditProfileScreen = ({ navigation }: any) => {
         data.foto_ktp = {
           uri: fotoKTP.uri,
           type: fotoKTP.type || 'image/jpeg',
-          name: fotoKTP.fsileName || `ktp_${Date.now()}.jpg`,
+          name: fotoKTP.fileName || `ktp_${Date.now()}.jpg`,
         };
       }
       
@@ -83,10 +83,22 @@ const EditProfileScreen = ({ navigation }: any) => {
       showAlert.success('Profil berhasil diperbarui, menunggu verifikasi admin');
       navigation.goBack();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error ||
-                          error.message || 
-                          'Gagal memperbarui profil';
+      console.log('Update Profile Error:', JSON.stringify(error, null, 2));
+      
+      let errorMessage = 'Gagal memperbarui profil';
+      
+      if (error.response?.data?.errors) {
+        // Gabungkan semua pesan error validasi
+        const validationErrors = error.response.data.errors;
+        const messages = Object.values(validationErrors).flat();
+        errorMessage = messages.join('\n');
+      } else {
+        errorMessage = error.response?.data?.message || 
+                      error.response?.data?.error ||
+                      error.message || 
+                      errorMessage;
+      }
+      
       showAlert.error(errorMessage);
     } finally {
       setLoading(false);

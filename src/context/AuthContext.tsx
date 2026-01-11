@@ -20,6 +20,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     checkAuth();
+
+    // Setup real-time listener for verification status
+    const unsubscribe = FCMService.addMessageListener((remoteMessage) => {
+      const type = remoteMessage?.data?.type;
+      if (type === 'user_verification') {
+        console.log('Verification update received, refreshing user data...');
+        refreshUser();
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const checkAuth = async () => {
@@ -30,8 +41,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
         setIsAuthenticated(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log('Auth check failed:', error);
+      if (error.response?.status === 401) {
+        await authService.logout();
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     } finally {
       setLoading(false);
     }

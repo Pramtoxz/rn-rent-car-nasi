@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -7,8 +7,8 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { bookingService, Booking } from '../services/bookingService';
 import { showAlert } from '../utils/alert';
-import LoadingLottie from '../components/LoadingLottie';
 import { useFocusEffect } from '@react-navigation/native';
+import FCMService from '../services/FCMService';
 
 const BookingDetailScreen = ({ navigation, route }: any) => {
   const { bookingId } = route.params;
@@ -19,10 +19,26 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
   useFocusEffect(
     React.useCallback(() => {
       loadBookingDetail();
-    }, [])
+
+      // Setup real-time listener for booking/payment status
+      const unsubscribe = FCMService.addMessageListener((remoteMessage) => {
+        const { type, booking_id } = remoteMessage?.data || {};
+        
+        // Refresh jika tipe notifikasi relevan dan ID booking sesuai
+        if (
+          (type === 'payment_verification' || type === 'booking_status') && 
+          String(booking_id) === String(bookingId)
+        ) {
+          console.log(`Booking ${bookingId} updated, refreshing...`);
+          loadBookingDetail();
+        }
+      });
+
+      return () => unsubscribe();
+    }, [bookingId])
   );
 
-  const loadBookingDetail = async () => {
+  const loadBookingDetail = React.useCallback(async () => {
     try {
       setLoading(true);
       const response = await bookingService.getBookingDetail(bookingId);
@@ -36,7 +52,7 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
         setLoading(false);
       }, 1000);
     }
-  };
+  }, [bookingId, navigation]);
 
   const handleUploadBukti = async () => {
     try {
@@ -49,23 +65,35 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
         setUploading(true);
         const asset = result.assets[0];
         
-        const removePrefix = (uri: string) => {
-          return uri.replace('file://', '');
+        const data = {
+          bukti_bayar: {
+            uri: asset.uri,
+            type: asset.type,
+            name: asset.fileName,
+          }
         };
 
-        const formData = new FormData();
-        formData.append('bukti_pembayaran', {
-          uri: Platform.OS === 'android' ? asset.uri : removePrefix(asset.uri!),
-          type: asset.type,
-          name: asset.fileName,
-        } as any); // Cast to any to satisfy FormData.append type for File
-
-        await bookingService.uploadBuktiBayar(bookingId, formData);
+        await bookingService.uploadBuktiBayar(bookingId, data);
         showAlert.success('Bukti pembayaran berhasil diupload');
         loadBookingDetail(); // Reload detail to update status
       }
     } catch (error: any) {
-      showAlert.error(error.response?.data?.message || 'Gagal upload bukti pembayaran');
+      console.log('Upload Bukti Error:', JSON.stringify(error, null, 2));
+      
+      let errorMessage = 'Gagal upload bukti pembayaran';
+      
+      if (error.response?.data?.errors) {
+        const validationErrors = error.response.data.errors;
+        const messages = Object.values(validationErrors).flat();
+        errorMessage = messages.join('\n');
+      } else {
+        errorMessage = error.response?.data?.message || 
+                      error.response?.data?.error ||
+                      error.message || 
+                      errorMessage;
+      }
+      
+      showAlert.error(errorMessage);
     } finally {
       setUploading(false);
     }
