@@ -15,6 +15,7 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -96,6 +97,20 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
       showAlert.error(errorMessage);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDownloadInvoice = async () => {
+    if (!booking) return;
+    try {
+      setDownloading(true);
+      await bookingService.downloadInvoice(booking.id, booking.kode_booking);
+      showAlert.success('Faktur berhasil didownload');
+    } catch (error: any) {
+      console.log('Download Error:', error);
+      showAlert.error('Gagal mendownload faktur. Pastikan server mendukung endpoint faktur.');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -182,10 +197,15 @@ const BookingDetailScreen = ({ navigation, route }: any) => {
               <Text style={styles.detailLabel}>Harga per Hari</Text>
               <Text style={styles.detailValue}>Rp.{booking.harga_per_hari.toLocaleString('id-ID')}</Text>
             </View>
-            <View style={[styles.detailRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>{booking.total_harga_formatted}</Text>
-            </View>
+            {/* Tombol Lihat & Download Faktur - Hanya muncul jika sudah dikonfirmasi/selesai */}
+            {(booking.status_booking === 'confirmed' || booking.status_booking === 'completed' || booking.status_booking === 'checked_in') && (
+              <TouchableOpacity
+                style={styles.invoiceButton}
+                onPress={() => navigation.navigate('Invoice', { bookingData: booking })}>
+                <Icon name="file-text" size={20} color={colors.primary} />
+                <Text style={styles.invoiceButtonText}>Lihat Faktur</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Catatan Customer */}
@@ -403,6 +423,23 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 16,
     color: colors.background,
+  },
+  invoiceButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 12,
+    height: 48,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 16,
+  },
+  invoiceButtonText: {
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    color: colors.primary,
   },
 });
 

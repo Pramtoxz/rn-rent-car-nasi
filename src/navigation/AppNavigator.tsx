@@ -8,13 +8,12 @@ import CarDetailsScreen from '../screens/CarDetailsScreen';
 import BookingScreen from '../screens/BookingScreen';
 import BookingListScreen from '../screens/BookingListScreen';
 import BookingDetailScreen from '../screens/BookingDetailScreen';
+import InvoiceScreen from '../screens/InvoiceScreen';
 import AboutScreen from '../screens/AboutScreen';
 import LoginScreen from '../screens/LoginScreen';
 import VerifyOTPScreen from '../screens/VerifyOTPScreen';
 import CompleteProfileScreen from '../screens/CompleteProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import MobilListScreen from '../screens/MobilListScreen';
 import { ActivityIndicator, View } from 'react-native';
 import { colors } from '../theme/colors';
 import SplashScreen from '../screens/SplashScreen';
@@ -53,6 +52,7 @@ const Navigation = () => {
           <Stack.Screen name="Booking" component={BookingScreen} />
           <Stack.Screen name="BookingList" component={BookingListScreen} />
           <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
+          <Stack.Screen name="Invoice" component={InvoiceScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
         </>
       )}
