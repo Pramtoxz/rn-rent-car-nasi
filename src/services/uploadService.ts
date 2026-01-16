@@ -1,12 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 
-const BASE_URL = 'http://172.20.10.3:8000/api';
+const BASE_URL = 'https://rentcarnasi.myserverku.web.id/api';
 
 export const uploadService = {
   async uploadWithFormData(endpoint: string, data: any): Promise<any> {
     const token = await AsyncStorage.getItem('token');
     const url = `${BASE_URL}${endpoint}`;
+
+    console.log('=== Upload Service Debug ===');
+    console.log('URL:', url);
+    console.log('Token exists:', !!token);
+    console.log('Token preview:', token ? `${token.substring(0, 20)}...` : 'No token');
+    console.log('===========================');
 
     try {
       const multipartData: any[] = [];
@@ -35,13 +41,18 @@ export const uploadService = {
         }
       }
 
+      const headers: any = {
+        'Content-Type': 'multipart/form-data',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await ReactNativeBlobUtil.fetch(
         'POST',
         url,
-        {
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'multipart/form-data',
-        },
+        headers,
         multipartData
       );
 
