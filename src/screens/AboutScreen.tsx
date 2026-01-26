@@ -12,8 +12,8 @@ const DevBackend = [
     name: 'Attaya Botak',
     nim: '2210099',
     roles: ['Backend Developer', 'Deployment', 'API' ,'Auth', 'WhatsApp Gateway'],
-    image: require('../assets/images/dev/avatar-5.jpg'),
-    instagram: '___sukabapak',
+    image: require('../assets/images/dev/taya.jpeg'),
+    instagram: '_atayafp',
   },
 ];
 
@@ -23,7 +23,7 @@ const DevFrontend = [
     name: 'Sri Mulyarni',
     nim: '2210009',
     roles: ['FrontEnd Developer', 'UI/UX Design', 'Prototype', 'Experiece', 'Testing'],
-    image: require('../assets/images/dev/avatar-2.jpg'),
+    image: require('../assets/images/dev/cimul.jpeg'),
     instagram: 'liaayaa_a', 
   },
 ];
